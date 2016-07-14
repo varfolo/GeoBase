@@ -24,6 +24,7 @@ namespace FillGeoBase
     public partial class Form1 : Form
     {
         public string Pathfile { get; set; }
+        private string connectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=supervisor;Database=gisdb;";
         public Form1()
         {
             InitializeComponent();
@@ -49,25 +50,6 @@ namespace FillGeoBase
             return list;
         }
 
-        private static void fillGeoTable(NpgsqlConnection conn)
-        {
-            NpgsqlCommand command = new NpgsqlCommand();
-            command.Connection = conn;
-            //String sqlcomfill = "insert into test (id) values (1);";
-            String sqlcom = "SELECT*FROM rawdata;";
-            System.Data.DataTable dt = new System.Data.DataTable();
-            NpgsqlDataAdapter da = new NpgsqlDataAdapter(sqlcom, conn);
-            da.Fill(dt);
-            System.Data.DataTableReader tablereader = dt.CreateDataReader();
-            while (tablereader.Read())
-            {
-                Object id = tablereader.GetValue(0); ;
-                command.CommandText = "insert into test (id) values (" +System.Int16.Parse(id.ToString())+ ");";
-                command.ExecuteNonQuery();
-            }
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {  
             using (OpenFileDialog dialog = new OpenFileDialog())
@@ -83,15 +65,13 @@ namespace FillGeoBase
         }
 
         private void button2_Click(object sender, EventArgs e)
-        {      
-
-            string connectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=supervisor;Database=gisdb;";
+        {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
             NpgsqlCommand comm = new NpgsqlCommand();
             comm.Connection = conn;
 
-            fillGeoTable(conn);
+           // fillGeoTable(conn);
             
             Application ExcelObj = null;
             WorkBook excelbook = null;
@@ -133,9 +113,7 @@ namespace FillGeoBase
                             if (valarrCheck is object[,] || valarrCheck == null)
                                 valarr = (object[,]) RealExcelRangeLoc.Value[XlRangeValueDataType.xlRangeValueDefault];
 
-                         // Console.WriteLine(valarr[1, 1] + " " + valarr[1, 3]);
-
-                            string sql = "insert into rawdata2 (id, area, coordinates, echelon, zone) values ('" + valarr[1, 1] + "', '" + valarr[1, 2] + "', '" + valarr[1, 3] + "','" + valarr[1, 4]+ "','" + valarr[1, 5]+"')";
+                            string sql = "insert into rawdata2 (id, area, coordinates, echelon, zone, note) values ('" + valarr[1, 1] + "', '" + valarr[1, 2] + "', '" + valarr[1, 3] + "','" + valarr[1, 4] + "','" + valarr[1, 5] + "','" + valarr[1, 6] + "')";
                             comm.CommandText = sql;
                             comm.ExecuteNonQuery();//.ExecuteScalar().ToString(); //Выполняем нашу команду.
                             comm.Dispose();    
@@ -157,6 +135,12 @@ namespace FillGeoBase
                 }
                 if (ExcelObj != null) ExcelObj.Quit();
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            FillGeoTable GeoTable = new FillGeoTable(connectionString);
+            GeoTable.fillGeoTable();
         }
     }   
 }
