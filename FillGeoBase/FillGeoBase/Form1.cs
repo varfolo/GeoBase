@@ -62,10 +62,8 @@ namespace FillGeoBase
             while (tablereader.Read())
             {
                 Object id = tablereader.GetValue(0); ;
-                Console.WriteLine(System.Int16.Parse(id.ToString()));
                 command.CommandText = "insert into test (id) values (" +System.Int16.Parse(id.ToString())+ ");";
                 command.ExecuteNonQuery();
-                Console.ReadLine();
             }
 
         }
@@ -137,7 +135,7 @@ namespace FillGeoBase
 
                          // Console.WriteLine(valarr[1, 1] + " " + valarr[1, 3]);
 
-                            string sql = "insert into rawdata (id, polygon, clss) values ('" + valarr[1, 1] + "', '" + valarr[1, 3] + "', '" + valarr[1, 5] + "');";
+                            string sql = "insert into rawdata2 (id, area, coordinates, echelon, zone) values ('" + valarr[1, 1] + "', '" + valarr[1, 2] + "', '" + valarr[1, 3] + "','" + valarr[1, 4]+ "','" + valarr[1, 5]+"')";
                             comm.CommandText = sql;
                             comm.ExecuteNonQuery();//.ExecuteScalar().ToString(); //Выполняем нашу команду.
                             comm.Dispose();    
