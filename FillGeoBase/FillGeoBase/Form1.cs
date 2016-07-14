@@ -72,7 +72,6 @@ namespace FillGeoBase
 
         private void button1_Click(object sender, EventArgs e)
         {  
-
             using (OpenFileDialog dialog = new OpenFileDialog())
             {
                 //dialog.Filter = "Текстовые файлы|*.txt";
