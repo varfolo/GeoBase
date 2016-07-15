@@ -25,18 +25,9 @@ namespace FillGeoBase
          */
         public void creatRawDataTable(string tablename)
         {
-            try
-            {
-                connection.Open();
-                command.Connection = connection;
-                String createtable = "CREATE TABLE " + tablename + " ( id varchar, area varchar, coordinates varchar, echelon varchar, zone varchar, note varchar);";
-                new NpgsqlCommand(createtable, connection).ExecuteNonQuery();
-            }
-            finally
-            {
-                connection.Close();
-            }
-
+            command.Connection = connection;
+            String createtable = "CREATE TABLE" + tablename + " ( id varchar(200), area varchar(200), coordinates varchar(200), echelon varchar(200), zone varchar(200), note varchar(200));";
+            new NpgsqlCommand(createtable, connection).ExecuteNonQuery();
         }
         public void fillGeoTable()
         {
