@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Data;
 
 using Npgsql;
 using System.Reflection;
@@ -27,7 +26,8 @@ namespace FillGeoBase
     {
         public string Pathfile { get; set; }
         public string Rawtablename { get; set; }
-        private string connectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=supervisor;Database=gisdb;";
+        public string Geotablename { get; set; }
+        private string connectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=supervisor;Database=gisdb2;";
         public Form1()
         {
             InitializeComponent();
@@ -83,7 +83,7 @@ namespace FillGeoBase
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)  //Открывает диалоговое окно для выбора файла
         {  
             using (OpenFileDialog dialog = new OpenFileDialog())
             {
@@ -92,7 +92,7 @@ namespace FillGeoBase
                 {
                     //textBox1.Text = File.ReadAllText(dialog.FileName);
                     Pathfile = dialog.FileName;
-                    Rawtablename = dialog.SafeFileName.ToString().Remove(dialog.SafeFileName.ToString().IndexOf("."));
+                    Rawtablename = dialog.SafeFileName.ToString().Remove(dialog.SafeFileName.ToString().IndexOf("."));  // Определяем имя таблицы для "сырых" данных в зависимости от имени отурытого файла Excel
                     textBox1.Text = Rawtablename;
                     
                 }
@@ -106,7 +106,12 @@ namespace FillGeoBase
             NpgsqlCommand comm = new NpgsqlCommand();
             comm.Connection = conn;
             new FillGeoTable(connectionString).creatRawDataTable(Rawtablename); // создание в БД таблицы для сырых данных с именем, зависящим от имени файла
-            
+
+            #region // Очистка таблицы
+            String tabletrunc = "TRUNCATE " + Rawtablename + ";";
+            new NpgsqlCommand(tabletrunc, conn).ExecuteNonQuery();
+            #endregion
+
             Application ExcelObj = null;
             WorkBook excelbook = null;
             try{
@@ -171,16 +176,16 @@ namespace FillGeoBase
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)      // Создание и заполнение таблицы с геоданными
         {
             FillGeoTable GeoTable = new FillGeoTable(connectionString);
-            GeoTable.fillGeoTable();
+            GeoTable.creatGeoDataTable(Geotablename); // создание в БД таблицы для "сырых" данных с именем, зависящим от имени файла
+            GeoTable.fillGeoTable(Geotablename);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
-          
+            Geotablename = comboBox1.SelectedItem.ToString();
         }
 
         private void comboBox1_MouseClick(object sender, MouseEventArgs e)
@@ -191,7 +196,7 @@ namespace FillGeoBase
 
         private void button4_Click(object sender, EventArgs e)
         {
-            connectionString = "Server=127.0.0.1;Port=5432;User Id="+textBox2.Text+";Password="+textBox3.Text+";Database=gisdb;";
+            connectionString = "Server=127.0.0.1;Port=5432;User Id="+textBox2.Text+";Password="+textBox3.Text+";Database=gisdb2;";
 
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
