@@ -92,9 +92,8 @@ namespace FillGeoBase
                 {
                     //textBox1.Text = File.ReadAllText(dialog.FileName);
                     Pathfile = dialog.FileName;
-                    Rawtablename = dialog.SafeFileName.ToString().Remove(dialog.SafeFileName.ToString().IndexOf("."));  // Определяем имя таблицы для "сырых" данных в зависимости от имени отурытого файла Excel
+                    Rawtablename = dialog.SafeFileName.ToString().Remove(dialog.SafeFileName.ToString().IndexOf("."));  // Определяем имя таблицы для "сырых" данных в зависимости от имени открытого файла Excel
                     textBox1.Text = Rawtablename;
-                    
                 }
             }
         }

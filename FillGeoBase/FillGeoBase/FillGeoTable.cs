@@ -91,17 +91,34 @@ namespace FillGeoBase
                     Object note = tablereader.GetValue(5);
 
                     coordinatesbuf = coordinates.ToString();
-                    coordinatesbuff = coordinatesbuf.Remove(coordinatesbuf.Length-2);
-                    //MessageBox.Show(coordinatesbuff);
+                    coordinatesbuff = coordinatesbuf.Remove(coordinatesbuf.Length - 2);
+
                     try
                     {
-                        command.CommandText = "insert into geo"+tablename+" (id, area, echelon, zone, note, geom) values (" + System.Int16.Parse(id.ToString()) + ",'" + area.ToString() + "','" +
-                                           echelon.ToString() + "','" + zone.ToString() + "','" + note.ToString() + "', ST_GeomFromText('POLYGON((" + coordinatesbuff + "))') );";
-                        command.ExecuteNonQuery();
+                        if  (coordinatesbuff.Contains("Окружность радиусом "))
+                        {
+                            string buffer1 = coordinatesbuff.Remove(0, "Окружность радиусом ".Length);
+                            string buffer2 = buffer1.Remove(buffer1.IndexOf("км"));                     // полученный из строки радиус в км
+                            int radius = System.Int32.Parse(buffer2);
+
+                            string buffer3 = coordinatesbuff.Remove(0,coordinatesbuff.IndexOf("центром") + "центром ".Length); // полученная из строки точка окружности
+
+                            command.CommandText = "insert into geo" + tablename + " (id, area, echelon, zone, note, geom) values (" + System.Int16.Parse(id.ToString()) + ",'" + area.ToString() + "','" +
+                                echelon.ToString() + "','" + zone.ToString() + "','" + note.ToString() + "', ST_Buffer( ST_GeomFromText('POINT(" + buffer3 + ")'), " + radius + ", 'quad_segs=8') );";
+                            command.ExecuteNonQuery();
+
+                        }
+                        else
+                        {
+                            command.CommandText = "insert into geo" + tablename + " (id, area, echelon, zone, note, geom) values (" + System.Int16.Parse(id.ToString()) + ",'" + area.ToString() + "','" +
+                                               echelon.ToString() + "','" + zone.ToString() + "','" + note.ToString() + "', ST_GeomFromText('POLYGON((" + coordinatesbuff + "))') );";
+                            command.ExecuteNonQuery();
+                        }
+
                     }
                     catch (Exception ex)
                     {
-                       //MessageBox.Show(ex.Message.ToString());
+                        //MessageBox.Show(ex.Message.ToString());
                     }
                     
                 }
@@ -113,3 +130,22 @@ namespace FillGeoBase
         }
     }
 }
+
+//////////////////////////////////////////////////////Требует детального изучения///////////////////////////////////////////////////////////
+//SELECT ST_Buffer(
+// ST_GeomFromText('POINT(100 90)'),
+// 50, 'quad_segs=8');
+
+// INSERT INTO circles (geom) (
+//   SELECT ST_Buffer(point, 600000, 'quad_segs=8') 
+//   FROM points
+//);
+
+
+//insert into geozacc (id, area, echelon, zone, note, geom) values (226, '"Мирнинский район"', 'От земли до эшелона 1700', 'АЙХАЛ
+//ЦПИ <***>', '',ST_Buffer( ST_GeomFromText('POINT(65.9608333333333 111.545)'), 50, 'quad_segs=8') )
+
+
+
+// SELECT ST_Transform(geometry(ST_Buffer(geography(ST_Transform( point, 4326 )),600000)),900913)
+// SELECT AsText(ST_Buffer(ST_Transform(ST_SetSRID(ST_MakePoint(37,53),4326),3395),1000000));
